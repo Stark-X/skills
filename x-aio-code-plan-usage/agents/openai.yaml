@@ -1,0 +1,4 @@
+interface:
+  display_name: "X-AIO Quota"
+  short_description: "Check x-aio code plan quota via stored JWT."
+  default_prompt: "Fetch my x-aio call_quota and summarize usage percentage."
