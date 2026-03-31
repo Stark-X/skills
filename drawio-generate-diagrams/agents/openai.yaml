@@ -1,0 +1,4 @@
+interface:
+  display_name: "draw.io XML"
+  short_description: "Generate and validate native draw.io XML diagrams."
+  default_prompt: "Use $drawio-generate-diagrams to create a valid draw.io XML diagram from my description."
