@@ -12,7 +12,7 @@ Collect hourly Claude Code and Codex CLI usage, render a grayscale stacked line 
 Before running, verify the system has:
 - `bun` — `which bun` must resolve (installed at `~/.bun/bin/bun`)
 - `convert` (ImageMagick) — `which convert` must resolve; used by `render_chart.ts` for SVG→PNG conversion
-- `ZECTRIX_DEVICE_ID` and `ZECTRIX_API_KEY` env vars exported
+- `ZECTRIX_DEVICE_ID` and `ZECTRIX_API_KEY` env vars exported, just check env var exists or not, don't get the value of them
 
 ## Workflow
 
