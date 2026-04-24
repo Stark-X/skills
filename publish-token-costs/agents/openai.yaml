@@ -1,0 +1,4 @@
+interface:
+  display_name: "Token Costs"
+  short_description: "Push daily Claude Code + Codex token usage chart to Zectrix e-ink."
+  default_prompt: "Collect today's Claude Code and Codex token usage and publish it to the e-ink device."
