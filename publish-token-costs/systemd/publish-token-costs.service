@@ -1,0 +1,8 @@
+[Unit]
+Description=Publish token costs to Zectrix e-ink device
+
+[Service]
+Type=oneshot
+EnvironmentFile=%h/.config/publish-token-costs/env
+ExecStart=/usr/bin/env bash -lc 'cd "$PUBLISH_TOKEN_COSTS_DIR" && exec "$BUN_BIN" run scripts/publish.ts'
+TimeoutStartSec=120

@@ -10,11 +10,16 @@ publish-token-costs/
 ├── README.md
 ├── SKILL.md
 ├── agents/openai.yaml
+├── systemd/
+│   ├── env.example
+│   ├── publish-token-costs.service
+│   └── publish-token-costs.timer
 └── scripts/
     ├── package.json        # 包元数据（无额外依赖，Bun 自动解析）
     ├── collect.ts          # 采集用量（调用 ccusage / 解析本地 JSONL）
     ├── render_chart.ts     # 渲染灰度 PNG 折线图
-    └── publish.ts          # 入口：采集 → 渲染 → 推送至设备
+    ├── publish.ts          # 入口：采集 → 渲染 → 推送至设备
+    └── install_timer.sh    # 安装并启用 user-level systemd timer
 ```
 
 ## 前置条件
@@ -39,6 +44,8 @@ export ZECTRIX_API_KEY="zt_your_key_here"        # 云平台 API Key
 ```
 
 建议写入 `~/.zshrc` 或 `~/.bashrc` 以持久生效。
+
+定时任务使用 `~/.config/publish-token-costs/env`，可参考 `systemd/env.example`。该文件权限建议为 `0600`。
 
 ## 快速使用
 
@@ -66,6 +73,28 @@ bun run publish-token-costs/scripts/collect.ts --pretty
 ```bash
 bun run publish-token-costs/scripts/collect.ts | \
   bun run publish-token-costs/scripts/render_chart.ts --output /tmp/chart.png
+```
+
+## 定时发布
+
+安装 user-level systemd timer，默认每 5 分钟推送一次：
+
+```bash
+publish-token-costs/scripts/install_timer.sh
+```
+
+显式指定每 5 分钟推送：
+
+```bash
+publish-token-costs/scripts/install_timer.sh --on-calendar '*:0/5'
+```
+
+查看状态和日志：
+
+```bash
+systemctl --user list-timers publish-token-costs.timer
+systemctl --user status publish-token-costs.timer
+journalctl --user -u publish-token-costs.service -n 100
 ```
 
 ## 推送内容

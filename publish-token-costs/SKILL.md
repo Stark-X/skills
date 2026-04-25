@@ -1,6 +1,6 @@
 ---
 name: publish-token-costs
-description: Publish today's Claude Code + Codex CLI token usage as a grayscale stacked line chart (cost + tokens, hourly 0-23h) to a Zectrix e-ink device. Use when asked to "push today's AI costs to the e-ink", "update the Zectrix token usage display", or "send daily usage report to e-ink".
+description: Publish today's Claude Code + Codex CLI token usage as a grayscale stacked line chart (cost + tokens, hourly 0-23h) to a Zectrix e-ink device, or install a systemd user service/timer for scheduled publishing. Use when asked to "push today's AI costs to the e-ink", "update the Zectrix token usage display", "send daily usage report to e-ink", "install/setup/enable the token cost service", or "set up/schedule/enable the token cost timer". If the user request is ambiguous, ask whether they want an immediate publish, a dry-run preview, or service/timer installation.
 ---
 
 # Publish Token Costs
@@ -16,12 +16,56 @@ Before running, verify the system has:
 
 ## Workflow
 
+If the user does not clearly choose one mode, ask whether they want:
+- immediate publish to the e-ink device
+- dry-run preview without touching the device
+- systemd service/timer installation for scheduled publishing
+
 1. Ensure `ZECTRIX_DEVICE_ID` and `ZECTRIX_API_KEY` are exported in the shell.
 2. Run `scripts/publish.ts` — it collects usage, renders the chart PNG, then posts two pages.
    - **Page 1**: line chart image — two stacked subplots (cost USD / tokens), Claude Code solid, Codex dashed.
    - **Page 2**: plaintext numeric summary — tokens and USD cost per tool, grand total.
 4. Verify both `{"code":0,...}` response lines printed to stdout.
 5. Use `--dry-run` to preview the chart and payloads locally without touching the device.
+
+## Scheduled publishing
+
+For long-running scheduled publishing, use the bundled user-level systemd timer instead of a long-lived service. The service is `Type=oneshot`; the timer starts it periodically.
+
+Bundled files:
+- `systemd/publish-token-costs.service` — oneshot service that runs `scripts/publish.ts`
+- `systemd/publish-token-costs.timer` — default five-minute timer
+- `systemd/env.example` — example environment file
+- `scripts/install_timer.sh` — installs/enables the user timer
+
+When asked to set up the timer:
+1. Check `bun`, `convert`, and `systemctl` exist.
+2. Ensure `ZECTRIX_DEVICE_ID` and `ZECTRIX_API_KEY` are available either in the shell or in `~/.config/publish-token-costs/env`; never print the API key value.
+3. Run the installer:
+
+```bash
+publish-token-costs/scripts/install_timer.sh
+```
+
+The default schedule publishes every five minutes. Optional schedule override:
+
+```bash
+publish-token-costs/scripts/install_timer.sh --on-calendar '*:0/5'
+```
+
+Verify status and logs:
+
+```bash
+systemctl --user list-timers publish-token-costs.timer
+systemctl --user status publish-token-costs.timer
+journalctl --user -u publish-token-costs.service -n 100
+```
+
+Manual run:
+
+```bash
+systemctl --user start publish-token-costs.service
+```
 
 ## Scripts
 

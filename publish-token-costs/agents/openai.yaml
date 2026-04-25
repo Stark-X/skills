@@ -1,4 +1,4 @@
 interface:
   display_name: "Token Costs"
-  short_description: "Push daily Claude Code + Codex token usage chart to Zectrix e-ink."
-  default_prompt: "Collect today's Claude Code and Codex token usage and publish it to the e-ink device."
+  short_description: "Publish now or install a timer for Claude Code + Codex token charts."
+  default_prompt: "Ask whether to publish today's token usage now, run a dry-run preview, or install the systemd timer for scheduled e-ink updates."
