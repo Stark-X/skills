@@ -51,7 +51,6 @@ bun_bin="$(command -v bun || true)"
 
 command -v systemctl >/dev/null || { echo "Error: systemctl is not available." >&2; exit 1; }
 [[ -n "$bun_bin" ]] || { echo "Error: bun is not available in PATH." >&2; exit 1; }
-command -v convert >/dev/null || { echo "Error: ImageMagick convert is not available in PATH." >&2; exit 1; }
 
 mkdir -p "$systemd_user_dir" "$env_dir"
 chmod 700 "$env_dir"

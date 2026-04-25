@@ -27,7 +27,8 @@ interface UsageReport {
 
 function parseArgs(): { date: string; pretty: boolean } {
   const args = process.argv.slice(2);
-  let date = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  let date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   let pretty = false;
   for (let i = 0; i < args.length; i++) {
     if (args[i] === "--date" && args[i + 1]) date = args[++i];

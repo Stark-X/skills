@@ -1,4 +1,4 @@
 interface:
   display_name: "Token Costs"
-  short_description: "Publish now or install a timer for Claude Code + Codex token charts."
+  short_description: "Publish now or install a timer for Claude Code + Codex token cost text reports."
   default_prompt: "Ask whether to publish today's token usage now, run a dry-run preview, or install the systemd timer for scheduled e-ink updates."

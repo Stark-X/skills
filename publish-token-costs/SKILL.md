@@ -1,17 +1,16 @@
 ---
 name: publish-token-costs
-description: Publish today's Claude Code + Codex CLI token usage as a grayscale stacked line chart (cost + tokens, hourly 0-23h) to a Zectrix e-ink device, or install a systemd user service/timer for scheduled publishing. Use when asked to "push today's AI costs to the e-ink", "update the Zectrix token usage display", "send daily usage report to e-ink", "install/setup/enable the token cost service", or "set up/schedule/enable the token cost timer". If the user request is ambiguous, ask whether they want an immediate publish, a dry-run preview, or service/timer installation.
+description: Publish today's Claude Code + Codex CLI token usage as a structured text page with an inline token chart and numeric summary to a Zectrix e-ink device, or install a systemd user service/timer for scheduled publishing. Use when asked to "push today's AI costs to the e-ink", "update the Zectrix token usage display", "send daily usage report to e-ink", "install/setup/enable the token cost service", or "set up/schedule/enable the token cost timer". If the user request is ambiguous, ask whether they want an immediate publish, a dry-run preview, or systemd service/timer installation.
 ---
 
 # Publish Token Costs
 
-Collect hourly Claude Code and Codex CLI usage, render a grayscale stacked line chart, and push it to a Zectrix e-ink panel via `cloud.zectrix.com`. All scripts run on Bun as self-contained TypeScript.
+Collect hourly Claude Code and Codex CLI usage, format a compact plain-text token chart plus numeric summary, and push it to a Zectrix e-ink panel via `cloud.zectrix.com`. All scripts run on Bun as self-contained TypeScript.
 
 ## Prerequisites check
 
 Before running, verify the system has:
 - `bun` — `which bun` must resolve (installed at `~/.bun/bin/bun`)
-- `convert` (ImageMagick) — `which convert` must resolve; used by `render_chart.ts` for SVG→PNG conversion
 - `ZECTRIX_DEVICE_ID` and `ZECTRIX_API_KEY` env vars exported, just check env var exists or not, don't get the value of them
 
 ## Workflow
@@ -22,11 +21,12 @@ If the user does not clearly choose one mode, ask whether they want:
 - systemd service/timer installation for scheduled publishing
 
 1. Ensure `ZECTRIX_DEVICE_ID` and `ZECTRIX_API_KEY` are exported in the shell.
-2. Run `scripts/publish.ts` — it collects usage, renders the chart PNG, then posts two pages.
-   - **Page 1**: line chart image — two stacked subplots (cost USD / tokens), Claude Code solid, Codex dashed.
-   - **Page 2**: plaintext numeric summary — tokens and USD cost per tool, grand total.
-4. Verify both `{"code":0,...}` response lines printed to stdout.
-5. Use `--dry-run` to preview the chart and payloads locally without touching the device.
+2. Run `scripts/publish.ts` — it collects usage, formats a compact text chart, then posts one structured-text page.
+   - Default page: **Page 1**.
+   - Title: `Token Costs · YYYY-MM-DD HH:mm`.
+   - Body: hourly token bar chart from the first active hour of the day through the current publish hour, plus numeric summary.
+3. Verify the `Text: {"code":0,...}` response line printed to stdout.
+4. Use `--dry-run` to preview the structured-text payload locally without touching the device.
 
 ## Scheduled publishing
 
@@ -39,7 +39,7 @@ Bundled files:
 - `scripts/install_timer.sh` — installs/enables the user timer
 
 When asked to set up the timer:
-1. Check `bun`, `convert`, and `systemctl` exist.
+1. Check `bun` and `systemctl` exist.
 2. Ensure `ZECTRIX_DEVICE_ID` and `ZECTRIX_API_KEY` are available either in the shell or in `~/.config/publish-token-costs/env`; never print the API key value.
 3. Run the installer:
 
@@ -77,21 +77,14 @@ bun run /abs/path/to/publish-token-costs/scripts/collect.ts --pretty
 bun run /abs/path/to/publish-token-costs/scripts/collect.ts --date 2026-04-24 --pretty
 ```
 
-### `scripts/render_chart.ts`
-Read collect JSON from stdin, write a grayscale 800×480 PNG.
-
-```bash
-bun run /abs/path/to/publish-token-costs/scripts/collect.ts | \
-  bun run /abs/path/to/publish-token-costs/scripts/render_chart.ts --output /tmp/chart.png
-```
-
 ### `scripts/publish.ts`
-Orchestrate: collect → render → POST image to page 1, POST text summary to page 2.
+Orchestrate: collect → format text chart and summary → POST structured text.
 
 ```bash
 bun run /abs/path/to/publish-token-costs/scripts/publish.ts
 bun run /abs/path/to/publish-token-costs/scripts/publish.ts --dry-run
 bun run /abs/path/to/publish-token-costs/scripts/publish.ts --date 2026-04-24
+bun run /abs/path/to/publish-token-costs/scripts/publish.ts --page 2
 ```
 
 ## Environment
