@@ -1,6 +1,6 @@
 # publish-token-costs
 
-将当天 Claude Code + Codex CLI 的 Token 用量以纯文本图表和摘要推送到 Zectrix 墨水屏设备。  
+将当天 Claude Code + Codex CLI 的 Token 用量渲染为 400×300 灰度 PNG，并推送到 Zectrix 墨水屏设备。  
 所有脚本基于 **Bun** 运行，TypeScript 自包含，无需额外编译步骤。
 
 ## 目录结构
@@ -17,7 +17,8 @@ publish-token-costs/
 └── scripts/
     ├── package.json        # 包元数据（无额外依赖，Bun 自动解析）
     ├── collect.ts          # 采集用量（调用 ccusage / 解析本地 JSONL）
-    ├── publish.ts          # 入口：采集 → 生成纯文本图表 → 推送至设备
+    ├── render_token_costs_card.ts # 渲染 400×300 SVG/PNG 卡片
+    ├── publish.ts          # 入口：采集 → 渲染 PNG → 推送至设备
     └── install_timer.sh    # 安装并启用 user-level systemd timer
 ```
 
@@ -26,6 +27,7 @@ publish-token-costs/
 | 依赖 | 检查方式 |
 |---|---|
 | `bun` | `which bun` |
+| `convert` (ImageMagick) | `which convert` |
 
 - **Bun**：https://bun.sh/docs/installation
 
@@ -38,6 +40,7 @@ publish-token-costs/
 ```bash
 export ZECTRIX_DEVICE_ID="11:22:33:EE:DD:FF"   # 设备 MAC 地址
 export ZECTRIX_API_KEY="zt_your_key_here"        # 云平台 API Key
+export TOKEN_COSTS_FONT="/usr/share/fonts/truetype/MapleMono-NF-CN-unhinted/MapleMono-NF-CN-Regular.ttf"
 ```
 
 建议写入 `~/.zshrc` 或 `~/.bashrc` 以持久生效。
@@ -95,11 +98,11 @@ journalctl --user -u publish-token-costs.service -n 100
 
 ## 推送内容
 
-默认推送到 Page 1，内容是一个结构化文本页面：
+默认推送到 Page 1，内容是一张 400×300 灰度 PNG：
 
-- 标题：`Token Costs · YYYY-MM-DD HH:mm`
-- 正文：从当天首次有 token 消耗的小时到当前推送小时的 token 柱状图
-- 摘要：Claude Code、Codex CLI 的 token 总数、费用和合计费用
+- 顶部：`TOKEN COSTS`、日期和统计时间
+- 中部：Codex / Claude Code 总 token 和费用，以及每小时 token bar
+- 底部：图例和当前小时最大 token 刻度
 
 ## 故障排查
 
@@ -107,7 +110,7 @@ journalctl --user -u publish-token-costs.service -n 100
 |---|---|
 | `ZECTRIX_DEVICE_ID is not set` | 检查环境变量是否已 export |
 | `HTTP 401` | 检查 `ZECTRIX_API_KEY` 是否正确 |
-| `No token usage yet` | 确认今日是否已有 Claude Code / Codex 使用记录 |
+| `convert failed` | 检查 ImageMagick `convert` 是否可用 |
 | Codex 数据为 0 | 检查 `~/.codex/sessions/YYYY/MM/DD/` 目录是否存在今日会话文件 |
 
 ## 安全说明
