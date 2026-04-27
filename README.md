@@ -2,6 +2,20 @@
 
 这个仓库存放本地可复用的 Agent Skills。
 
+## Adding Skills
+
+添加新 skill 时使用：
+
+```sh
+bunx skills add <source>
+```
+
+例如：
+
+```sh
+bunx skills add vercel-labs/agent-skills
+```
+
 ## Skills Summary
 
 - `publish-token-costs`：采集 Claude Code + Codex CLI 当日 token 用量，渲染 400x300 灰度 PNG，并发布到 Zectrix 墨水屏；也支持安装 user-level systemd timer 定时发布。详情见 `publish-token-costs/README.md`。
