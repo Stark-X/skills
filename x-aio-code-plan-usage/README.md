@@ -2,6 +2,10 @@
 
 用于查询 x-aio dashboard 的 `call_quota`，并计算最近 4 小时调用占比。
 
+通过邀请链接享受优惠折扣：https://code.x-aio.com/register?ref=70a73891af04488bb106 
+
+> 如果选择专业版（每 4 小时 500 Prompts 配额（5x Lite）），还有开箱即用的 OpenClaw
+
 ## 目录结构
 
 ```text
