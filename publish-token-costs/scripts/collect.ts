@@ -78,6 +78,21 @@ function targetDateStr(isoTimestamp: string, dateStr: string): boolean {
   return local === dateStr;
 }
 
+function shiftDateStr(dateStr: string, days: number): string {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  const d = new Date(year, month - 1, day + days);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function codexSessionDirsForDate(dateStr: string): string[] {
+  const dirs = new Set<string>();
+  for (const candidate of [shiftDateStr(dateStr, -1), dateStr, shiftDateStr(dateStr, 1)]) {
+    const [year, month, day] = candidate.split("-");
+    dirs.add(join(CODEX_SESSIONS_DIR, year, month, day));
+  }
+  return [...dirs];
+}
+
 async function collectClaudeHourly(dateStr: string): Promise<number[]> {
   const hourly = new Array<number>(24).fill(0);
   if (!existsSync(CLAUDE_PROJECTS_DIR)) return hourly;
@@ -112,28 +127,28 @@ async function collectClaudeHourly(dateStr: string): Promise<number[]> {
 
 async function collectCodexHourly(dateStr: string): Promise<number[]> {
   const hourly = new Array<number>(24).fill(0);
-  const [year, month, day] = dateStr.split("-");
-  const dayDir = join(CODEX_SESSIONS_DIR, year, month, day);
-  if (!existsSync(dayDir)) return hourly;
-  const files = await readdir(dayDir).catch(() => [] as string[]);
-  for (const file of files) {
-    if (!file.startsWith("rollout-") || !file.endsWith(".jsonl")) continue;
-    const text = await readFile(join(dayDir, file), "utf-8").catch(() => "");
-    for (const line of text.split("\n")) {
-      const l = line.trim();
-      if (!l) continue;
-      let obj: Record<string, unknown>;
-      try { obj = JSON.parse(l); } catch { continue; }
-      // Codex wraps token_count inside a payload envelope: {type:"event_msg", payload:{type:"token_count",...}}
-      const payload = obj.payload as Record<string, unknown> | undefined;
-      if (payload?.type !== "token_count") continue;
-      const ts = obj.timestamp as string | undefined;
-      if (!ts) continue;
-      const info = payload.info as Record<string, unknown> | undefined;
-      // last_token_usage is per-request (not cumulative) — correct for hourly binning
-      const last = info?.last_token_usage as Record<string, number> | undefined;
-      const tokens = last?.total_tokens ?? 0;
-      hourly[localHour(ts)] += tokens;
+  for (const dayDir of codexSessionDirsForDate(dateStr)) {
+    if (!existsSync(dayDir)) continue;
+    const files = await readdir(dayDir).catch(() => [] as string[]);
+    for (const file of files) {
+      if (!file.startsWith("rollout-") || !file.endsWith(".jsonl")) continue;
+      const text = await readFile(join(dayDir, file), "utf-8").catch(() => "");
+      for (const line of text.split("\n")) {
+        const l = line.trim();
+        if (!l) continue;
+        let obj: Record<string, unknown>;
+        try { obj = JSON.parse(l); } catch { continue; }
+        // Codex wraps token_count inside a payload envelope: {type:"event_msg", payload:{type:"token_count",...}}
+        const payload = obj.payload as Record<string, unknown> | undefined;
+        if (payload?.type !== "token_count") continue;
+        const ts = obj.timestamp as string | undefined;
+        if (!ts || !targetDateStr(ts, dateStr)) continue;
+        const info = payload.info as Record<string, unknown> | undefined;
+        // last_token_usage is per-request (not cumulative) — correct for hourly binning
+        const last = info?.last_token_usage as Record<string, number> | undefined;
+        const tokens = last?.total_tokens ?? 0;
+        hourly[localHour(ts)] += tokens;
+      }
     }
   }
   return hourly;
