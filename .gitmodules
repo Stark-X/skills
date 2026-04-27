@@ -1,0 +1,3 @@
+[submodule "publish-token-costs/scripts/modules"]
+	path = publish-token-costs/scripts/modules
+	url = https://github.com/Stark-X/libs.git

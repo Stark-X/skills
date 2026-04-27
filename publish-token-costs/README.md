@@ -15,12 +15,23 @@ publish-token-costs/
 │   ├── publish-token-costs.service
 │   └── publish-token-costs.timer
 └── scripts/
-    ├── package.json        # 包元数据（无额外依赖，Bun 自动解析）
-    ├── collect.ts          # 采集用量（调用 ccusage / 解析本地 JSONL）
-    ├── render_token_costs_card.ts # 渲染 400×300 SVG/PNG 卡片
-    ├── publish.ts          # 入口：采集 → 渲染 PNG → 推送至设备
-    └── install_timer.sh    # 安装并启用 user-level systemd timer
+    ├── package.json                 # 包元数据（无额外依赖，Bun 自动解析）
+    ├── collect.ts                   # 采集用量（调用 ccusage / 解析本地 JSONL）
+    ├── render_token_costs_card.ts   # 简单 CLI：读取用量 JSON，写 SVG/PNG
+    ├── publish.ts                   # 流程入口：采集 → 渲染 → 推送
+    ├── install_timer.sh             # 安装并启用 user-level systemd timer
+    ├── token-costs/
+    │   └── token_costs_card.ts      # 当前 skill 专用的 Token 成本卡片渲染
+    └── modules/                     # git submodule: ../libs
+        ├── bun/
+        │   ├── image-handling/
+        │   │   └── svg_to_png.ts    # Bun/Node 通用 SVG → PNG 转换
+        │   └── zectrix/
+        │       └── zectrix.ts       # Bun/Node 通用 Zectrix 图片发布客户端
+        └── uv/                      # Python/uv 通用库位置
 ```
+
+`scripts/` 下的入口脚本和 `token-costs/` 保留当前 skill 的业务流程；`scripts/modules/` 是指向 `../libs` 的 git submodule，只放可复用通用能力。
 
 ## 前置条件
 

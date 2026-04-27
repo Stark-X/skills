@@ -23,7 +23,7 @@ If the user does not clearly choose one mode, ask whether they want:
 - systemd service/timer installation for scheduled publishing
 
 1. Ensure `ZECTRIX_DEVICE_ID` and `ZECTRIX_API_KEY` are exported in the shell.
-2. Run `scripts/publish.ts` — it collects usage, renders a 400x300 PNG card, then posts one image page.
+2. Run `scripts/publish.ts` — it keeps the skill workflow simple: collect usage, call the render CLI, then call the Zectrix publisher module to post one image page.
    - Default page: **Page 1**.
    - Image: 400x300 grayscale PNG with title, date/time, totals, hourly token bars, legend, and scale.
 3. Verify the `Image: {"code":0,...}` response line printed to stdout.
@@ -79,7 +79,7 @@ bun run /abs/path/to/publish-token-costs/scripts/collect.ts --date 2026-04-24 --
 ```
 
 ### `scripts/publish.ts`
-Orchestrate: collect → render PNG chart → POST image.
+Orchestrate the skill workflow: collect → render PNG chart → POST image. Keep generic capabilities in `scripts/modules/`, and keep token-cost-specific rendering in `scripts/token-costs/`.
 
 ```bash
 bun run /abs/path/to/publish-token-costs/scripts/publish.ts
@@ -89,13 +89,23 @@ bun run /abs/path/to/publish-token-costs/scripts/publish.ts --page 2
 ```
 
 ### `scripts/render_token_costs_card.ts`
-Read collect JSON from stdin or `--input`, write a 400x300 SVG and optional PNG.
+Simple render CLI: read collect JSON from stdin or `--input`, write a 400x300 SVG and optional PNG.
 
 ```bash
 bun run /abs/path/to/publish-token-costs/scripts/render_token_costs_card.ts --demo --png /tmp/token-costs-demo.png
 bun run /abs/path/to/publish-token-costs/scripts/collect.ts | \
   bun run /abs/path/to/publish-token-costs/scripts/render_token_costs_card.ts --png /tmp/token-costs.png
 ```
+
+### `scripts/modules/`
+Git submodule pointing at the generic libraries repository. Purpose-separated modules:
+- `bun/image-handling/svg_to_png.ts` — ImageMagick-backed SVG → PNG conversion for Bun/Node scripts
+- `bun/zectrix/zectrix.ts` — Zectrix image upload client for Bun/Node scripts
+- `uv/` — Python/uv generic library location
+
+### `scripts/token-costs/`
+Business-specific modules for this skill:
+- `token_costs_card.ts` — usage report → token-cost card data → SVG rendering
 
 ## Environment
 
