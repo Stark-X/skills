@@ -1,0 +1,4 @@
+interface:
+  display_name: "Hypr Window Screenshot"
+  short_description: "Capture one Hyprland window by name or focus"
+  default_prompt: "Use $hypr-window-screenshot to capture a screenshot of the requested window."
