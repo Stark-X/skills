@@ -22,13 +22,13 @@ In Codex sandboxed sessions, `hyprctl` or `grim` may need `sandbox_permissions="
 Capture the active window:
 
 ```bash
-./scripts/capture_hypr_window.py --active --output /tmp/window.png
+/abs/path/to/scripts/capture_hypr_window.py --active --output /tmp/window.png
 ```
 
 Capture a window by class/title substring:
 
 ```bash
-./scripts/capture_hypr_window.py --query "cc switch" --output ./cc-switch-window.png
+/abs/path/to/scripts/capture_hypr_window.py --query "cc switch" --output ./cc-switch-window.png
 ```
 
 The script uses `uv run --script` in its shebang and declares `dependencies = []`, so it can run directly when executable or via `uv run --script scripts/capture_hypr_window.py`.
