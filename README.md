@@ -13,7 +13,7 @@ bunx skills add <source>
 例如：
 
 ```sh
-bunx skills add vercel-labs/agent-skills
+bunx skills add Stark-X/agent-skills
 ```
 
 ## Skills Summary
