@@ -1,0 +1,4 @@
+interface:
+  display_name: "GitLab Issue CLI"
+  short_description: "用已安装的 python-gitlab CLI 按仓库 remote 查询或更新 GitLab Issue"
+  default_prompt: "使用 $gitlab-issue-cli 从当前仓库 git remote 提取 name_with_namespace，并用 gitlab CLI 查询或更新对应项目的 issue。"

@@ -23,3 +23,4 @@ bunx skills add Stark-X/skills
 - `drawio-generate-diagrams`：根据需求生成、修复并校验 draw.io / diagrams.net 原生 XML，并可生成浏览器编辑链接。详情见 `drawio-generate-diagrams/SKILL.md`。
 - `mermaid-beautify`：将 Markdown/HTML 中的 ` ```mermaid ` 代码块转换为「隐藏源码 + 精美渲染图」组合，支持 15 套内置主题的 SVG 输出或终端友好的 ASCII/Unicode 方框字符图。底层基于 beautiful-mermaid 渲染引擎。详情见 `mermaid-beautify/SKILL.md`。
 - `hypr-window-screenshot`：基于 Hyprland 窗口元数据和 `grim` 区域截图，按活动窗口或窗口 class/title/name 捕获单个窗口截图。详情见 `hypr-window-screenshot/SKILL.md`。
+- `gitlab-issue-cli`：使用已安装的 python-gitlab `gitlab` CLI，从当前仓库 git remote 自动推导 `name_with_namespace`，查询、创建、更新、关闭或评论 GitLab Issue。详情见 `gitlab-issue-cli/SKILL.md`。
